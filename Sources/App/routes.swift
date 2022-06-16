@@ -1,17 +1,26 @@
 import Vapor
 
-func routes(_ app: Application) throws {
-    app.get { req in
-        return ["message": "It works"]
-    }
+struct UserResponse: Content {
+  let id: Int
+  let name: String
+}
 
-    app.get("hello") { req -> String in
-        return "Hello, world!"
+func routes(_ app: Application) throws {
+  
+  // /users/:userId
+  app.get("users", ":userId") { req -> UserResponse in
+    guard
+      let userId = req.parameters.get("userId", as: Int.self)
+    else {
+      struct BadRequest: Error {}
+      throw BadRequest()
     }
-    
-    app.get("time") { req -> String in
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy년 MM월 dd일 HH시 mm분"
-        return dateFormatter.string(from: Date())
-    }
+    return UserResponse(id: userId, name: "minan \(userId)")
+  }
+  
+  app.get("time") { req -> String in
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy년 MM월 dd일 HH시 mm분"
+    return dateFormatter.string(from: Date())
+  }
 }
